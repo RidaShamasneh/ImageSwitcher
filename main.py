@@ -1,6 +1,7 @@
 import sys
 import os
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 from PySide6.QtGui import QPixmap
 
@@ -8,15 +9,16 @@ from krystroke_monitor import KeyStrokeMonitor
 
 
 class ImageSwitcher(QWidget):
-    WIDTH: int = 566
-    HEIGHT: int = 900
+    WIDTH: int = 500
+    HEIGHT: int = 700
 
     INITIAL_IMAGE_KEY: str = "initial"
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Key-Based Image Switcher")
-        self.setFixedSize(ImageSwitcher.WIDTH, ImageSwitcher.HEIGHT)
+        self.setWindowTitle("Mobile")
+
+        self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.label = QLabel()
 
@@ -27,7 +29,7 @@ class ImageSwitcher(QWidget):
         root_dir = os.path.dirname(os.path.realpath(__file__))
         # root_dir is e.g. 'C:\Users\Admin\PycharmProjects\ImageSwitcher'
         resources_path = os.path.join(root_dir, "resources")
-        print(f"resources_path = {resources_path}")
+        print(f"Info: resources_path = {resources_path}")
 
         self.__image_map: dict[str, str] = {
             ImageSwitcher.INITIAL_IMAGE_KEY: os.path.join(resources_path, "initial.png")
@@ -63,7 +65,11 @@ class ImageSwitcher(QWidget):
             print(f"Error: \"{image_path}\" was not found!")
             return
 
-        self.label.setPixmap(QPixmap(image_path).scaled(ImageSwitcher.WIDTH, ImageSwitcher.HEIGHT))
+        pixmap: QPixmap = QPixmap(image_path)
+        self.label.setPixmap(pixmap.scaled(ImageSwitcher.WIDTH,
+                                           ImageSwitcher.HEIGHT,
+                                           Qt.KeepAspectRatio,
+                                           Qt.SmoothTransformation))
 
 
 if __name__ == "__main__":
