@@ -38,7 +38,7 @@ class ImageSwitcher(QWidget):
         for dirpath, dirnames, filenames in os.walk(resources_path):
             for sub_dirname in dirnames:
                 image_path: str = os.path.join(dirpath, sub_dirname, "image.png")
-                self.__image_map[sub_dirname] = image_path
+                self.__image_map[sub_dirname.lower()] = image_path
                 print(self.__image_map[sub_dirname])
 
         self.__keystroke_monitor = KeyStrokeMonitor()
@@ -51,6 +51,8 @@ class ImageSwitcher(QWidget):
         self.__key_stroke_released_handler(ImageSwitcher.INITIAL_IMAGE_KEY)
 
     def __key_stroke_released_handler(self, key: str) -> None:
+        key = key.lower()
+
         print(f"Info: key pressed -> {key}")
         if key not in self.__image_map:
             print("Warning: No entry for this key.")
