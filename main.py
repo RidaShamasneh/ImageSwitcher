@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 from PySide6.QtGui import QPixmap
 
-from krystroke_monitor import KeyStrokeMonitor
+from keystroke_monitor import KeyStrokeMonitor
 
 
 class ImageSwitcher(QWidget):
