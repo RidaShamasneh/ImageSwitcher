@@ -1,16 +1,16 @@
 import sys
 import os
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QMovie
 
 from keystroke_monitor import KeyStrokeMonitor
 
 
 class ImageSwitcher(QWidget):
-    WIDTH: int = 500
-    HEIGHT: int = 700
+    WIDTH: int = 400
+    HEIGHT: int = 800
 
     INITIAL_IMAGE_KEY: str = "initial"
 
@@ -20,10 +20,11 @@ class ImageSwitcher(QWidget):
 
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.label = QLabel()
+        self.__label = QLabel()
+        self.__movie = None
 
         layout = QVBoxLayout()
-        layout.addWidget(self.label)
+        layout.addWidget(self.__label)
         self.setLayout(layout)
 
         root_dir = os.path.dirname(os.path.realpath(__file__))
@@ -32,12 +33,12 @@ class ImageSwitcher(QWidget):
         print(f"Info: resources_path = {resources_path}")
 
         self.__image_map: dict[str, str] = {
-            ImageSwitcher.INITIAL_IMAGE_KEY: os.path.join(resources_path, "initial.png")
+            ImageSwitcher.INITIAL_IMAGE_KEY: os.path.join(resources_path, "initial.gif")
         }
 
         for dirpath, dirnames, filenames in os.walk(resources_path):
             for sub_dirname in dirnames:
-                image_path: str = os.path.join(dirpath, sub_dirname, "image.png")
+                image_path: str = os.path.join(dirpath, sub_dirname, "image.gif")
                 self.__image_map[sub_dirname.lower()] = image_path
                 print(self.__image_map[sub_dirname])
 
@@ -45,7 +46,7 @@ class ImageSwitcher(QWidget):
         self.__keystroke_monitor.start()
         self.__keystroke_monitor.key_stroke_released.connect(self.__key_stroke_released_handler)
 
-        self.label.setStyleSheet("background-color: black;")
+        self.__label.setStyleSheet("background-color: black;")
 
         # Set initial image on startup
         self.__key_stroke_released_handler(ImageSwitcher.INITIAL_IMAGE_KEY)
@@ -67,11 +68,14 @@ class ImageSwitcher(QWidget):
             print(f"Error: \"{image_path}\" was not found!")
             return
 
-        pixmap: QPixmap = QPixmap(image_path)
-        self.label.setPixmap(pixmap.scaled(ImageSwitcher.WIDTH,
-                                           ImageSwitcher.HEIGHT,
-                                           Qt.KeepAspectRatio,
-                                           Qt.SmoothTransformation))
+        if self.__movie and self.__movie.state() == QMovie.Running:
+            self.__movie.stop()
+
+        self.__movie = QMovie(image_path)
+        self.__movie.setScaledSize(QSize(ImageSwitcher.WIDTH, ImageSwitcher.HEIGHT))
+        self.__label.setMovie(self.__movie)
+
+        self.__movie.start()
 
 
 if __name__ == "__main__":
